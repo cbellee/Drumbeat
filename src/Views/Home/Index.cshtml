@@ -1,0 +1,41 @@
+﻿@* @model drumbeat.Models.Photo
+
+@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+ *@
+
+ @model drumbeat.Models.Photo
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "File Upload";
+}
+
+<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <section>
+        <form method="post" enctype="multipart/form-data" asp-controller="FileUpload" asp-action="Upload">
+            <div class="form-group">
+                <div class="col-md-10">
+                    <p>Upload a file:</p>
+                    <input type="file" name="file" />
+                </div>
+            </div>
+            <br />
+            <div class="form-group">
+                <div class="col-md-10">
+                    <input type="submit" value="Upload" />
+                </div>
+            </div>
+        </form>
+        <br />
+        <br/>
+    </section>
+</div>

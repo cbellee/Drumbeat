@@ -1,0 +1,33 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "location": {
+            "value": "australiaeast"
+        },
+        "existingVnetName": {
+            "value": "existing-vnet"
+        },
+        "existingResourceGroup": {
+            "value": "drumbeat-rg"
+        },
+        "sqlDbName": {
+            "value": "aspNetIdentityDb"
+        },
+        "sqlAdministratorLogin": {
+            "value": "sqladmin"
+        },
+        "sqlAdministratorLoginPassword": {
+            "value": null
+        },
+        "apiKey": {
+            "value": null
+        },
+        "repositoryUrl": {
+            "value": "https://github.com/cbellee/Drumbeat"
+        },
+        "repositoryBranch": {
+            "value": "main"
+        }
+    }
+}

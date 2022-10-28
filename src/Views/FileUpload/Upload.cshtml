@@ -1,0 +1,17 @@
+﻿@model drumbeat.Models.Photo
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
+@{
+    ViewData["Title"] = "Upload Result";
+}
+
+<h1>@ViewData["Title"]</h1>
+<div class="row">
+    <section>
+        <h2>Uploaded Image</h2>
+        <div>Name: @Model.Name</div>
+        <div>Size: @Model.Size</div>
+        <div>ContentType: @Model.ContentType</div>
+        <img src="@Model.Url" alt="image" style="width: 55vw; min-width: 330px;"/>
+    </section>
+</div>
