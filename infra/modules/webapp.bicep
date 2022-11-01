@@ -54,6 +54,10 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
           name: 'COMPUTER_VISION_ENDPOINT'
           value: cogSvcAccountEndpoint
         }
+        {
+          name: 'WEBSITE_WEBDEPLOY_USE_SCM'
+          value: 'true'
+        }
       ]
     }
   }
