@@ -27,7 +27,7 @@ jobs:
       run: dotnet build src/ --configuration Release
 
     - name: dotnet publish
-      run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}
+      run: dotnet publish src/ -c Release -o ${{env.DOTNET_ROOT}}
 
     - name: Run Azure webapp deploy action using publish profile credentials
       uses: azure/webapps-deploy@v2
