@@ -20,9 +20,6 @@
         "sqlAdministratorLoginPassword": {
             "value": null
         },
-        "apiKey": {
-            "value": null
-        },
         "repositoryUrl": {
             "value": "https://github.com/cbellee/Drumbeat"
         },

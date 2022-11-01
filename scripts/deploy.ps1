@@ -15,4 +15,4 @@ New-AzResourceGroupDeployment -Name 'infra-deployment' `
     -TemplateFile $bicepFilePath `
     -TemplateParameterFile $parameterFilePath `
     -sqlAdministratorLoginPassword $sqlAdministratorLoginPassword `
-    -apiKey $apiKey
+    -linuxFxVersion 'DOTNETCORE|6.0'
