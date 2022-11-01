@@ -35,5 +35,5 @@ jobs:
         app-name: drumbeat-egrhd72feuspa
         slot-name: Production
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_5C7CCAEEF4114F46AE17928911ED980F }}
-        package: ${{env.DOTNET_ROOT}}/myapp
+        package: ${{env.DOTNET_ROOT}}
 
