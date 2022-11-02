@@ -6,6 +6,7 @@ param sqlServerFullyQualifiedDomainName string
 param sqlDbName string
 param sqlAdministratorLogin string
 param sqlAdministratorLoginPassword string
+param subnetId string
 param storageAccountName string
 param storageAccountKeySecretUri string
 param cognitiveServicesKeySecretSecretUri string
@@ -14,26 +15,39 @@ param cogSvcAccountEndpoint string
 param repositoryUrl string
 param repositoryBranch string
 param linuxApp bool = true
+param keyVaultName string
 
-var identityName = 'key-vault-reference-mid'
+resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' existing = {
+  name: keyVaultName
+}
 
-resource userManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
-  name: identityName
-  location: location
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  name: 'add'
+  parent: keyVault
+  properties: {
+    accessPolicies: [
+      {
+        objectId: webApp.identity.principalId
+        permissions: {
+          secrets: [
+            'get'
+            'list'
+          ]
+        }
+        tenantId: tenant().tenantId
+      }
+    ]
+  }
 }
 
 resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: appName
   location: location
   identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${userManagedIdentity.id}': {}
-    }
+    type: 'SystemAssigned'
   }
   properties: {
     serverFarmId: appServicePlanId
-    keyVaultReferenceIdentity: userManagedIdentity.id
     siteConfig: {
       linuxFxVersion: (linuxFxVersion != null) ? linuxFxVersion : null
       connectionStrings: [
@@ -77,6 +91,15 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   }
 }
 
+resource vnetIntegration 'Microsoft.Web/sites/networkConfig@2022-03-01' = {
+  name: 'virtualNetwork'
+  parent: webApp
+  properties: {
+   subnetResourceId: subnetId
+   swiftSupported: true
+  }
+}
+
 // deploy app from GitHub source code
 resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
   name: '${webApp.name}/web'
@@ -98,4 +121,4 @@ resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
 
 output name string = webApp.name
 output defaultHostName string = webApp.properties.defaultHostName
-output userManagedIdentityPrincipalId string = userManagedIdentity.properties.principalId
+output principalId string = webApp.identity.principalId

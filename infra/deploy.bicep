@@ -21,7 +21,7 @@ var linuxAppServicePlanName = 'linux-asp-${uniqueName}'
 var windowsAppServicePlanName = 'windows-asp-${uniqueName}'
 var appServiceCapacity = 1
 var sqlServerName = 'sql-${uniqueName}'
-var appName = 'drumbeat-${uniqueName}'
+var appName = 'drumbeat-ai-${uniqueName}'
 var cognitiveServicesAccountName = 'cogsvc${uniqueName}'
 var keyVaultName = 'kv${uniqueName}'
 
@@ -112,25 +112,6 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
-resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
-  name: 'add'
-  parent: keyVault
-  properties: {
-    accessPolicies: [
-      {
-        objectId: webAppModule.outputs.userManagedIdentityPrincipalId
-        permissions: {
-          secrets: [
-            'get'
-            'list'
-          ]
-        }
-        tenantId: tenant().tenantId
-      }
-    ]
-  }
-}
-
 resource storageAccountKeySecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   parent: keyVault
   name: 'storageAccountKey'
@@ -154,16 +135,6 @@ resource sqlServerConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2022
     value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlDB.name};Persist Security Info=False;User ID=${sqlServer.properties.administratorLogin};Password=${sqlAdministratorLoginPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
   }
 }
-
-/* module kvRoleAssignment 'modules/roleAssignment.bicep' = {
-  name: 'keyVault-role-assignment-module'
-  params: {
-    keyVaultId: keyVault.id
-    keyVaultName: keyVault.name
-    principalId: webAppModule.outputs.userManagedIdentityPrincipalId
-    roleName: roleIdMapping[roleName]
-  }
-} */
 
 resource storageAccountBlobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
   parent: storageAccount
@@ -257,6 +228,8 @@ module webAppModule 'modules/webapp.bicep' = {
   params: {
     sqlAdministratorLogin: sqlAdministratorLogin
     sqlAdministratorLoginPassword: sqlAdministratorLoginPassword
+    subnetId: appServiceSubnet.id
+    keyVaultName: keyVault.name
     sqlDbName: sqlDbName
     sqlServerFullyQualifiedDomainName: sqlServer.properties.fullyQualifiedDomainName
     repositoryBranch: repositoryBranch
