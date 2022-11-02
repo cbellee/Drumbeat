@@ -98,5 +98,5 @@ resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
 
 output name string = webApp.name
 output defaultHostName string = webApp.properties.defaultHostName
-output principalId string = webApp.identity.principalId
+// output principalId string = webApp.identity.principalId
 output userManagedIdentityPrincipalId string = userManagedIdentity.properties.principalId
