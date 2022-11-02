@@ -2,7 +2,10 @@ param location string
 param appName string
 param appServicePlanId string
 param linuxFxVersion string
-param sqlServerConnectionStringSecret string
+param sqlServerFullyQualifiedDomainName string
+param sqlDbName string
+param sqlAdministratorLogin string
+param sqlAdministratorLoginPassword string
 param storageAccountName string
 param storageAccountKeySecretUri string
 param cognitiveServicesKeySecretSecretUri string
@@ -25,7 +28,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
       connectionStrings: [
         {
           name: 'DefaultConnection'
-          connectionString: '@Microsoft.KeyVault(SecretUri=${sqlServerConnectionStringSecret}' //'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlDB.name};Persist Security Info=False;User ID=${sqlServer.properties.administratorLogin};Password=${sqlAdministratorLoginPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
+          connectionString: 'Server=tcp:${sqlServerFullyQualifiedDomainName},1433;Initial Catalog=${sqlDbName};Persist Security Info=False;User ID=${sqlAdministratorLogin};Password=${sqlAdministratorLoginPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;' // '@Microsoft.KeyVault(SecretUri=${sqlServerConnectionStringSecret}' 
           type: 'SQLAzure'
         }
       ]
@@ -36,7 +39,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'STORAGE_ACCOUNT_KEY'
-          value: '@Microsoft.KeyVault(SecretUri=${storageAccountKeySecretUri}' //storageAccount.listKeys().keys[0].value
+          value: '@Microsoft.KeyVault(SecretUri=${storageAccountKeySecretUri}'
         }
         {
           name: 'STORAGE_CONTAINER_NAME'
@@ -48,7 +51,7 @@ resource webApp 'Microsoft.Web/sites@2020-06-01' = {
         }
         {
           name: 'COMPUTER_VISION_SUBSCRIPTION_KEY'
-          value: '@Microsoft.KeyVault(SecretUri=${cognitiveServicesKeySecretSecretUri}' //listKeys(cogSvcAccount.id, cogSvcAccount.apiVersion).key1
+          value: '@Microsoft.KeyVault(SecretUri=${cognitiveServicesKeySecretSecretUri}'
         }
         {
           name: 'COMPUTER_VISION_ENDPOINT'

@@ -34,7 +34,6 @@ var roleIdMapping = {
   'Key Vault Secrets User': '4633458b-17de-408a-b874-0445c86b69e6'
 }
 
-@secure()
 param sqlAdministratorLoginPassword string
 
 // storage account
@@ -65,6 +64,12 @@ resource appServiceSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-05-01'
           location
         ]
         service: 'Microsoft.KeyVault'
+      }
+      {
+        locations: [
+          location
+        ]
+        service: 'Microsoft.Sql'
       }
     ]
     delegations: [
@@ -148,16 +153,6 @@ module kvRoleAssignment 'modules/roleAssignment.bicep' = {
   }
 }
 
-/* resource kvRoleAssignment 'Microsoft.Authorization/roleAssignments@2020-04-01-preview' = {
-  name: guid(roleIdMapping[roleName], webAppModule.outputs.principalId, keyVault.id)
-  scope: keyVault
-  properties: {
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', roleIdMapping[roleName])
-    principalId: webAppModule.outputs.principalId
-    principalType: 'ServicePrincipal'
-  }
-} */
-
 resource storageAccountBlobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
   parent: storageAccount
   name: 'default'
@@ -179,8 +174,16 @@ resource sqlServer 'Microsoft.Sql/servers@2020-02-02-preview' = {
   }
 }
 
+resource sqlServerVnetRules 'Microsoft.Sql/servers/virtualNetworkRules@2022-05-01-preview' = {
+  name: 'sql-server-vnet-rule-01'
+  parent: sqlServer
+  properties: {
+    virtualNetworkSubnetId: appServiceSubnet.id
+  }
+}
+
 // enable "allow access to Azure services" firewall setting
-resource sqlSererFirewallRules 'Microsoft.Sql/servers/firewallRules@2022-05-01-preview' = {
+resource sqlServerFirewallRules 'Microsoft.Sql/servers/firewallRules@2022-05-01-preview' = {
   parent: sqlServer
   name: 'sql-server-firewall-rules'
   properties: {
@@ -240,6 +243,10 @@ resource windowsAppServicePlan 'Microsoft.Web/serverfarms@2020-06-01' = if (!lin
 module webAppModule 'modules/webapp.bicep' = {
   name: 'web-app-module'
   params: {
+    sqlAdministratorLogin: sqlAdministratorLogin
+    sqlAdministratorLoginPassword: sqlAdministratorLoginPassword
+    sqlDbName: sqlDbName
+    sqlServerFullyQualifiedDomainName: sqlServer.properties.fullyQualifiedDomainName
     repositoryBranch: repositoryBranch
     repositoryUrl: repositoryUrl
     linuxApp: true
@@ -250,76 +257,9 @@ module webAppModule 'modules/webapp.bicep' = {
     containerName: containerName
     linuxFxVersion: linuxFxVersion
     location: location
-    sqlServerConnectionStringSecret: '@Microsoft.KeyVault(SecretUri=${sqlServerConnectionStringSecret}'
     storageAccountKeySecretUri: '@Microsoft.KeyVault(SecretUri=${storageAccountKeySecret.properties.secretUri}'
     storageAccountName: storageAccount.name
   }
 }
-
-/* resource webApp 'Microsoft.Web/sites@2020-06-01' = {
-  name: appName
-  location: location
-  identity: {
-    type: 'SystemAssigned'
-  }
-  properties: {
-    serverFarmId: linuxApp ? linuxAppServicePlan.id : windowsAppServicePlan.id
-    siteConfig: {
-      linuxFxVersion: (linuxFxVersion != null) ? linuxFxVersion : null
-      connectionStrings: [
-        {
-          name: 'DefaultConnection'
-          connectionString: '@Microsoft.KeyVault(SecretUri=${sqlServerConnectionStringSecret}' //'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=${sqlDB.name};Persist Security Info=False;User ID=${sqlServer.properties.administratorLogin};Password=${sqlAdministratorLoginPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
-          type: 'SQLAzure'
-        }
-      ]
-      appSettings: [
-        {
-          name: 'STORAGE_ACCOUNT_NAME'
-          value: storageAccount.name
-        }
-        {
-          name: 'STORAGE_ACCOUNT_KEY'
-          value: '@Microsoft.KeyVault(SecretUri=${storageAccountKeySecret.properties.secretUri}' //storageAccount.listKeys().keys[0].value
-        }
-        {
-          name: 'STORAGE_CONTAINER_NAME'
-          value: containerName
-        }
-        {
-          name: 'ASPNETCORE_ENVIRONMENT'
-          value: 'Development'
-        }
-        {
-          name: 'COMPUTER_VISION_SUBSCRIPTION_KEY'
-          value: '@Microsoft.KeyVault(SecretUri=${cognitiveServicesKeySecret.properties.secretUri}' //listKeys(cogSvcAccount.id, cogSvcAccount.apiVersion).key1
-        }
-        {
-          name: 'COMPUTER_VISION_ENDPOINT'
-          value: cogSvcAccount.properties.endpoint
-        }
-      ]
-    }
-  }
-} */
-
-// deploy app from GitHub source code
-/* resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
-  name: '${webAppModule.outputs.name}/web'
-  properties: {
-    repoUrl: repositoryUrl
-    branch: repositoryBranch
-    isManualIntegration: false
-    isGitHubAction: true
-    gitHubActionConfiguration: {
-      codeConfiguration: {
-        runtimeStack: 'dotnetcore'
-        runtimeVersion: '6.0'
-      }
-      isLinux: linuxApp ? true : false
-      generateWorkflowFile: true
-    }
-  }
-} */
 
 output appServiceHostName string = webAppModule.outputs.defaultHostName

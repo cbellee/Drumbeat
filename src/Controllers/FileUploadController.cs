@@ -42,6 +42,12 @@ public class FileUploadController : Controller
         var subscriptionKey = Environment.GetEnvironmentVariable("COMPUTER_VISION_SUBSCRIPTION_KEY");
         var endpoint = Environment.GetEnvironmentVariable("COMPUTER_VISION_ENDPOINT");
 
+        Console.WriteLine($"accountName: {accountName}");
+        Console.WriteLine($"accountKey: {accountKey}");
+        Console.WriteLine($"accountName: {containerName}");
+        Console.WriteLine($"subscriptionKey: {subscriptionKey}");
+        Console.WriteLine($"endpoint: {endpoint}");
+
         BlobContainerClient container = new BlobContainerClient($"DefaultEndpointsProtocol=https;AccountName={accountName};AccountKey={accountKey};EndpointSuffix=core.windows.net", containerName);
         drumbeat.Models.Photo photo = new drumbeat.Models.Photo();
 

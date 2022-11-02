@@ -1,9 +1,4 @@
-while getopts p: flag
-do
-    case "${flag}" in
-        p) sqlAdministratorLoginPassword=${OPTARG};;
-    esac
-done
+source ./.env
 
 resourceGroupName='drumbeat-rg'
 location='australiaeast'
