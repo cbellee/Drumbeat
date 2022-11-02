@@ -50,7 +50,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
         }
         {
           name: 'STORAGE_ACCOUNT_KEY'
-          value: '@Microsoft.KeyVault(SecretUri=${storageAccountKeySecretUri}'
+          value: '@Microsoft.KeyVault(SecretUri=${storageAccountKeySecretUri})'
         }
         {
           name: 'STORAGE_CONTAINER_NAME'
@@ -62,7 +62,7 @@ resource webApp 'Microsoft.Web/sites@2022-03-01' = {
         }
         {
           name: 'COMPUTER_VISION_SUBSCRIPTION_KEY'
-          value: '@Microsoft.KeyVault(SecretUri=${cognitiveServicesKeySecretSecretUri}'
+          value: '@Microsoft.KeyVault(SecretUri=${cognitiveServicesKeySecretSecretUri})'
         }
         {
           name: 'COMPUTER_VISION_ENDPOINT'
@@ -98,5 +98,4 @@ resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
 
 output name string = webApp.name
 output defaultHostName string = webApp.properties.defaultHostName
-// output principalId string = webApp.identity.principalId
 output userManagedIdentityPrincipalId string = userManagedIdentity.properties.principalId
