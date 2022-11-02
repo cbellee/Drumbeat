@@ -125,7 +125,7 @@ resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-
   properties: {
     accessPolicies: [
       {
-        objectId: webAppModule.outputs.principalId
+        objectId: webAppModule.outputs.userManagedIdentityPrincipalId
         permissions: {
           secrets: [
             'get'
@@ -167,7 +167,7 @@ module kvRoleAssignment 'modules/roleAssignment.bicep' = {
   params: {
     keyVaultId: keyVault.id
     keyVaultName: keyVault.name
-    principalId: webAppModule.outputs.principalId
+    principalId: webAppModule.outputs.userManagedIdentityPrincipalId
     roleName: roleIdMapping[roleName]
   }
 }

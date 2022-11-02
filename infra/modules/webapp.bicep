@@ -15,14 +15,25 @@ param repositoryUrl string
 param repositoryBranch string
 param linuxApp bool = true
 
-resource webApp 'Microsoft.Web/sites@2020-06-01' = {
+var identityName = 'key-vault-reference-mid'
+
+resource userManagedIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2018-11-30' = {
+  name: identityName
+  location: location
+}
+
+resource webApp 'Microsoft.Web/sites@2022-03-01' = {
   name: appName
   location: location
   identity: {
-    type: 'SystemAssigned'
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${userManagedIdentity.id}': {}
+    }
   }
   properties: {
     serverFarmId: appServicePlanId
+    keyVaultReferenceIdentity: userManagedIdentity.id
     siteConfig: {
       linuxFxVersion: (linuxFxVersion != null) ? linuxFxVersion : null
       connectionStrings: [
@@ -88,3 +99,4 @@ resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
 output name string = webApp.name
 output defaultHostName string = webApp.properties.defaultHostName
 output principalId string = webApp.identity.principalId
+output userManagedIdentityPrincipalId string = userManagedIdentity.properties.principalId
