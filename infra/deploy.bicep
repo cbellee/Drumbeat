@@ -119,6 +119,25 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
   }
 }
 
+resource keyVaultAccessPolicy 'Microsoft.KeyVault/vaults/accessPolicies@2022-07-01' = {
+  name: 'add'
+  parent: keyVault
+  properties: {
+    accessPolicies: [
+      {
+        objectId: webAppModule.outputs.principalId
+        permissions: {
+          secrets: [
+            'get'
+            'list'
+          ]
+        }
+        tenantId: tenant().tenantId
+      }
+    ]
+  }
+}
+
 resource storageAccountKeySecret 'Microsoft.KeyVault/vaults/secrets@2022-07-01' = {
   parent: keyVault
   name: 'storageAccountKey'
@@ -252,12 +271,12 @@ module webAppModule 'modules/webapp.bicep' = {
     linuxApp: true
     appName: appName
     appServicePlanId: linuxApp ? linuxAppServicePlan.id : windowsAppServicePlan.id
-    cognitiveServicesKeySecretSecretUri: '@Microsoft.KeyVault(SecretUri=${cognitiveServicesKeySecret.properties.secretUri}'
+    cognitiveServicesKeySecretSecretUri: cognitiveServicesKeySecret.properties.secretUri
     cogSvcAccountEndpoint: cogSvcAccount.properties.endpoint
     containerName: containerName
     linuxFxVersion: linuxFxVersion
     location: location
-    storageAccountKeySecretUri: '@Microsoft.KeyVault(SecretUri=${storageAccountKeySecret.properties.secretUri}'
+    storageAccountKeySecretUri: storageAccountKeySecret.properties.secretUri
     storageAccountName: storageAccount.name
   }
 }
