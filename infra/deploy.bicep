@@ -105,7 +105,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
       name: 'standard'
     }
     tenantId: tenant().tenantId
-    enableRbacAuthorization: true
+    enableRbacAuthorization: false
     enableSoftDelete: true
     networkAcls: {
       defaultAction: 'Deny'
@@ -162,7 +162,7 @@ resource sqlServerConnectionStringSecret 'Microsoft.KeyVault/vaults/secrets@2022
   }
 }
 
-module kvRoleAssignment 'modules/roleAssignment.bicep' = {
+/* module kvRoleAssignment 'modules/roleAssignment.bicep' = {
   name: 'keyVault-role-assignment-module'
   params: {
     keyVaultId: keyVault.id
@@ -170,7 +170,7 @@ module kvRoleAssignment 'modules/roleAssignment.bicep' = {
     principalId: webAppModule.outputs.userManagedIdentityPrincipalId
     roleName: roleIdMapping[roleName]
   }
-}
+} */
 
 resource storageAccountBlobServices 'Microsoft.Storage/storageAccounts/blobServices@2022-05-01' = {
   parent: storageAccount
