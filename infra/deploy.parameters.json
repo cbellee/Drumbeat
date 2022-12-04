@@ -6,7 +6,7 @@
             "value": "australiaeast"
         },
         "existingVnetName": {
-            "value": "existing-vnet"
+            "value": "drumbeat-vnet"
         },
         "existingResourceGroup": {
             "value": "drumbeat-rg"
@@ -21,10 +21,13 @@
             "value": null
         },
         "repositoryUrl": {
-            "value": "https://github.com/cbellee/Drumbeat"
+            "value": "https://github.com/krisbock/drumbeat-app"
         },
         "repositoryBranch": {
             "value": "main"
+        },
+        "existingCVResourceGroup": {
+            "value": "cognitive_rg"
         }
     }
 }
