@@ -7,6 +7,8 @@ on:
   push:
     branches:
       - main
+      
+  workflow_dispatch:
 
 jobs:
   build-and-deploy:
@@ -32,7 +34,7 @@ jobs:
     - name: Run Azure webapp deploy action using publish profile credentials
       uses: azure/webapps-deploy@v2
       with:
-        app-name: drumbeat-egrhd72feuspa
+        app-name: drumbeat-ai-egrhd72feuspa
         slot-name: Production
         publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_07AF881664E14A658F41C5A0298854B8 }}
         package: ${{env.DOTNET_ROOT}}/myapp
