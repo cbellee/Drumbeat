@@ -5,7 +5,10 @@ param linuxFxVersion string
 param sqlServerFullyQualifiedDomainName string
 param sqlDbName string
 param sqlAdministratorLogin string
+
+@secure()
 param sqlAdministratorLoginPassword string
+
 param subnetId string
 param storageAccountName string
 param storageAccountKeySecretUri string
@@ -100,6 +103,32 @@ resource vnetIntegration 'Microsoft.Web/sites/networkConfig@2022-03-01' = {
   }
 }
 
+resource logging 'Microsoft.Web/sites/config@2022-03-01' = {
+  name: 'logs'
+  kind: 'string'
+  parent: webApp
+  properties: {
+    applicationLogs: {
+      fileSystem: {
+        level: 'Verbose'
+      }
+    }
+    detailedErrorMessages: {
+      enabled: true
+    }
+    failedRequestsTracing: {
+      enabled: true
+    }
+    httpLogs: {
+      fileSystem: {
+        enabled: true
+        retentionInDays: 7
+        retentionInMb: 100
+      }
+    }
+  }
+}
+
 // deploy app from GitHub source code
 resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
   name: '${webApp.name}/web'
@@ -113,7 +142,7 @@ resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
         runtimeStack: 'dotnetcore'
         runtimeVersion: '6.0'
       }
-      isLinux: linuxApp ? true : false
+      isLinux: linuxApp
       generateWorkflowFile: false
     }
   }

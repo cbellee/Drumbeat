@@ -1,7 +1,5 @@
 param location string
-param existingVnetName string
 param subnetName string = 'appServiceIntegrationSubnet'
-param existingResourceGroup string
 param sqlDbName string
 param sqlAdministratorLogin string
 param repositoryUrl string
@@ -10,6 +8,8 @@ param containerName string = 'images'
 param linuxApp bool = true
 param linuxFxVersion string
 param adminUserObjectId string
+
+@secure()
 param sqlAdministratorLoginPassword string
 
 // storage account
@@ -24,35 +24,44 @@ var sqlServerName = 'sql-${uniqueName}'
 var appName = 'drumbeat-ai-${uniqueName}'
 var cognitiveServicesAccountName = 'cogsvc${uniqueName}'
 var keyVaultName = 'kv${uniqueName}'
+var vnetName = 'vnet-${uniqueName}'
 
-resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-01-01' existing = {
-  scope: resourceGroup(existingResourceGroup)
-  name: existingVnetName
-}
-
-resource appServiceSubnet 'Microsoft.Network/virtualNetworks/subnets@2022-05-01' = {
-  name: '${virtualNetwork.name}/${subnetName}'
+resource virtualNetwork 'Microsoft.Network/virtualNetworks@2022-01-01' = {
+  name: vnetName
+  location: location
   properties: {
-    addressPrefix: '10.0.1.0/24'
-    serviceEndpoints: [
+    addressSpace: {
+      addressPrefixes: [
+        '10.0.0.0/16'
+      ]
+    }
+    subnets: [
       {
-        locations: [
-          location
-        ]
-        service: 'Microsoft.KeyVault'
-      }
-      {
-        locations: [
-          location
-        ]
-        service: 'Microsoft.Sql'
-      }
-    ]
-    delegations: [
-      {
-        name: 'webapp'
+        name: subnetName
         properties: {
-          serviceName: 'Microsoft.Web/serverFarms'
+          addressPrefix: '10.0.1.0/24'
+          serviceEndpoints: [
+            {
+              locations: [
+                location
+              ]
+              service: 'Microsoft.KeyVault'
+            }
+            {
+              locations: [
+                location
+              ]
+              service: 'Microsoft.Sql'
+            }
+          ]
+          delegations: [
+            {
+              name: 'webapp'
+              properties: {
+                serviceName: 'Microsoft.Web/serverFarms'
+              }
+            }
+          ]
         }
       }
     ]
@@ -105,7 +114,7 @@ resource keyVault 'Microsoft.KeyVault/vaults@2022-07-01' = {
       bypass: 'AzureServices'
       virtualNetworkRules: [
         {
-          id: appServiceSubnet.id
+          id: virtualNetwork.properties.subnets[0].id
         }
       ]
     }
@@ -161,7 +170,7 @@ resource sqlServerVnetRules 'Microsoft.Sql/servers/virtualNetworkRules@2022-05-0
   name: 'sql-server-vnet-rule-01'
   parent: sqlServer
   properties: {
-    virtualNetworkSubnetId: appServiceSubnet.id
+    virtualNetworkSubnetId: virtualNetwork.properties.subnets[0].id
   }
 }
 
@@ -228,7 +237,7 @@ module webAppModule 'modules/webapp.bicep' = {
   params: {
     sqlAdministratorLogin: sqlAdministratorLogin
     sqlAdministratorLoginPassword: sqlAdministratorLoginPassword
-    subnetId: appServiceSubnet.id
+    subnetId: virtualNetwork.properties.subnets[0].id
     keyVaultName: keyVault.name
     sqlDbName: sqlDbName
     sqlServerFullyQualifiedDomainName: sqlServer.properties.fullyQualifiedDomainName

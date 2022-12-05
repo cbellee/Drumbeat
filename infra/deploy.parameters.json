@@ -5,12 +5,6 @@
         "location": {
             "value": "australiaeast"
         },
-        "existingVnetName": {
-            "value": "existing-vnet"
-        },
-        "existingResourceGroup": {
-            "value": "drumbeat-rg"
-        },
         "sqlDbName": {
             "value": "aspNetIdentityDb"
         },
