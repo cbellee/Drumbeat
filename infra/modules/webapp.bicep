@@ -143,7 +143,7 @@ resource srcControls 'Microsoft.Web/sites/sourcecontrols@2021-01-01' = {
         runtimeVersion: '6.0'
       }
       isLinux: linuxApp
-      generateWorkflowFile: false
+      generateWorkflowFile: true
     }
   }
 }
