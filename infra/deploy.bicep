@@ -11,7 +11,8 @@ param adminUserObjectId string
 
 @secure()
 param sqlAdministratorLoginPassword string
-
+param existingCVResourceGroup string
+param cognitiveServicesAccountName string
 // storage account
 var uniqueName = uniqueString(resourceGroup().id)
 var storageAccountSku = 'Standard_LRS'
@@ -22,7 +23,6 @@ var windowsAppServicePlanName = 'windows-asp-${uniqueName}'
 var appServiceCapacity = 1
 var sqlServerName = 'sql-${uniqueName}'
 var appName = 'drumbeat-ai-${uniqueName}'
-var cognitiveServicesAccountName = 'cogsvc${uniqueName}'
 var keyVaultName = 'kv${uniqueName}'
 var vnetName = 'vnet-${uniqueName}'
 
@@ -195,17 +195,9 @@ resource sqlDB 'Microsoft.Sql/servers/databases@2020-02-02-preview' = {
 }
 
 // cognitive services
-resource cogSvcAccount 'Microsoft.CognitiveServices/accounts@2022-10-01' = {
+resource cogSvcAccount 'Microsoft.CognitiveServices/accounts@2022-10-01' existing = {
+  scope: resourceGroup(existingCVResourceGroup)
   name: cognitiveServicesAccountName
-  location: location
-  kind: 'CognitiveServices'
-  sku: {
-    name: 'S0'
-  }
-  properties: {
-    restrictOutboundNetworkAccess: false
-
-  }
 }
 
 // app service

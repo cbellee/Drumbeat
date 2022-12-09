@@ -15,10 +15,16 @@
             "value": null
         },
         "repositoryUrl": {
-            "value": "https://github.com/cbellee/Drumbeat"
+            "value": "https://github.com/krisbock/drumbeat-app"
         },
         "repositoryBranch": {
             "value": "main"
+        },
+        "cognitiveServicesAccountName": {
+            "value": "mscustomvision"
+        },
+        "existingCVResourceGroup": {
+            "value": "cognitive_rg"
         }
     }
 }
